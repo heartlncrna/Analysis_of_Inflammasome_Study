@@ -1,0 +1,572 @@
+# Download SRA files to ~./sra_files/ and extract FASTQ files
+# "fasterq-dump" version 2.10.5
+# Ran on 05/04/2023
+
+prefetch --option-file SRR_Acc_List.txt
+
+fasterq-dump --split-files ./SRR15415022/SRR15415022.sra
+fasterq-dump --split-files ./SRR15415023/SRR15415023.sra
+fasterq-dump --split-files ./SRR15415024/SRR15415024.sra
+fasterq-dump --split-files ./SRR15415025/SRR15415025.sra
+fasterq-dump --split-files ./SRR15415026/SRR15415026.sra
+fasterq-dump --split-files ./SRR15415027/SRR15415027.sra
+fasterq-dump --split-files ./SRR15415028/SRR15415028.sra
+fasterq-dump --split-files ./SRR15415029/SRR15415029.sra
+fasterq-dump --split-files ./SRR15415030/SRR15415030.sra
+fasterq-dump --split-files ./SRR15415031/SRR15415031.sra
+fasterq-dump --split-files ./SRR15415032/SRR15415032.sra
+fasterq-dump --split-files ./SRR15415033/SRR15415033.sra
+
+# Download the genome assembly and GTF file for human
+# Use GRCh38.109
+
+wget https://ftp.ensembl.org/pub/release-107/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz
+wget https://ftp.ensembl.org/pub/release-107/gtf/homo_sapiens/Homo_sapiens.GRCh38.109.gtf.gz
+
+# Expand the GZ files.
+gunzip *.gz
+
+
+# Make index file for STAR aligner.
+STAR --runMode genomeGenerate --runThreadN 8 --genomeDir ./ --genomeFastaFiles Homo_sapiens.GRCh38.dna.primary_assembly.fa --sjdbGTFfile Homo_sapiens.GRCh38.109.gtf
+
+
+# Run FASTP to perform read filtrations. 
+# version: fastp 0.21.0
+# Ran on 05/04/2023
+
+fastp -i SRR15415022.sra.fastq -o SRR15415022.trimmed.fastq -h SRR15415022-fastp.html -j SRR15415022_fastp.json
+fastp -i SRR15415023.sra.fastq -o SRR15415023.trimmed.fastq -h SRR15415023-fastp.html -j SRR15415023_fastp.json
+fastp -i SRR15415024.sra.fastq -o SRR15415024.trimmed.fastq -h SRR15415024-fastp.html -j SRR15415024_fastp.json
+fastp -i SRR15415025.sra.fastq -o SRR15415025.trimmed.fastq -h SRR15415025-fastp.html -j SRR15415025_fastp.json
+fastp -i SRR15415026.sra.fastq -o SRR15415026.trimmed.fastq -h SRR15415026-fastp.html -j SRR15415026_fastp.json
+fastp -i SRR15415027.sra.fastq -o SRR15415027.trimmed.fastq -h SRR15415027-fastp.html -j SRR15415027_fastp.json
+fastp -i SRR15415028.sra.fastq -o SRR15415028.trimmed.fastq -h SRR15415028-fastp.html -j SRR15415028_fastp.json
+fastp -i SRR15415029.sra.fastq -o SRR15415029.trimmed.fastq -h SRR15415029-fastp.html -j SRR15415029_fastp.json
+fastp -i SRR15415030.sra.fastq -o SRR15415030.trimmed.fastq -h SRR15415030-fastp.html -j SRR15415030_fastp.json
+fastp -i SRR15415031.sra.fastq -o SRR15415031.trimmed.fastq -h SRR15415031-fastp.html -j SRR15415031_fastp.json
+fastp -i SRR15415032.sra.fastq -o SRR15415032.trimmed.fastq -h SRR15415032-fastp.html -j SRR15415032_fastp.json
+fastp -i SRR15415033.sra.fastq -o SRR15415033.trimmed.fastq -h SRR15415033-fastp.html -j SRR15415033_fastp.json
+
+
+
+# Align the sequence reads to the genome using STAR
+# version STAR             020201
+# Ran on 05/04/2023
+
+mkdir sra_files
+mv SRR* ./sra_files/
+
+STAR --runMode alignReads --runThreadN 8 --genomeDir /references/Human/GRCh38.109/ --outSAMtype BAM SortedByCoordinate --quantMode GeneCounts --outReadsUnmapped Fastx --sjdbGTFfile /references/Human/GRCh38.109/Homo_sapiens.GRCh38.109.gtf --readFilesIn ./sra_files/SRR15415022.trimmed.fastq --outFileNamePrefix SRR15415022_
+STAR --runMode alignReads --runThreadN 8 --genomeDir /references/Human/GRCh38.109/ --outSAMtype BAM SortedByCoordinate --quantMode GeneCounts --outReadsUnmapped Fastx --sjdbGTFfile /references/Human/GRCh38.109/Homo_sapiens.GRCh38.109.gtf --readFilesIn ./sra_files/SRR15415023.trimmed.fastq --outFileNamePrefix SRR15415023_
+STAR --runMode alignReads --runThreadN 8 --genomeDir /references/Human/GRCh38.109/ --outSAMtype BAM SortedByCoordinate --quantMode GeneCounts --outReadsUnmapped Fastx --sjdbGTFfile /references/Human/GRCh38.109/Homo_sapiens.GRCh38.109.gtf --readFilesIn ./sra_files/SRR15415024.trimmed.fastq --outFileNamePrefix SRR15415024_
+STAR --runMode alignReads --runThreadN 8 --genomeDir /references/Human/GRCh38.109/ --outSAMtype BAM SortedByCoordinate --quantMode GeneCounts --outReadsUnmapped Fastx --sjdbGTFfile /references/Human/GRCh38.109/Homo_sapiens.GRCh38.109.gtf --readFilesIn ./sra_files/SRR15415025.trimmed.fastq --outFileNamePrefix SRR15415025_
+STAR --runMode alignReads --runThreadN 8 --genomeDir /references/Human/GRCh38.109/ --outSAMtype BAM SortedByCoordinate --quantMode GeneCounts --outReadsUnmapped Fastx --sjdbGTFfile /references/Human/GRCh38.109/Homo_sapiens.GRCh38.109.gtf --readFilesIn ./sra_files/SRR15415026.trimmed.fastq --outFileNamePrefix SRR15415026_
+STAR --runMode alignReads --runThreadN 8 --genomeDir /references/Human/GRCh38.109/ --outSAMtype BAM SortedByCoordinate --quantMode GeneCounts --outReadsUnmapped Fastx --sjdbGTFfile /references/Human/GRCh38.109/Homo_sapiens.GRCh38.109.gtf --readFilesIn ./sra_files/SRR15415027.trimmed.fastq --outFileNamePrefix SRR15415027_
+STAR --runMode alignReads --runThreadN 8 --genomeDir /references/Human/GRCh38.109/ --outSAMtype BAM SortedByCoordinate --quantMode GeneCounts --outReadsUnmapped Fastx --sjdbGTFfile /references/Human/GRCh38.109/Homo_sapiens.GRCh38.109.gtf --readFilesIn ./sra_files/SRR15415028.trimmed.fastq --outFileNamePrefix SRR15415028_
+STAR --runMode alignReads --runThreadN 8 --genomeDir /references/Human/GRCh38.109/ --outSAMtype BAM SortedByCoordinate --quantMode GeneCounts --outReadsUnmapped Fastx --sjdbGTFfile /references/Human/GRCh38.109/Homo_sapiens.GRCh38.109.gtf --readFilesIn ./sra_files/SRR15415029.trimmed.fastq --outFileNamePrefix SRR15415029_
+STAR --runMode alignReads --runThreadN 8 --genomeDir /references/Human/GRCh38.109/ --outSAMtype BAM SortedByCoordinate --quantMode GeneCounts --outReadsUnmapped Fastx --sjdbGTFfile /references/Human/GRCh38.109/Homo_sapiens.GRCh38.109.gtf --readFilesIn ./sra_files/SRR15415030.trimmed.fastq --outFileNamePrefix SRR15415030_
+STAR --runMode alignReads --runThreadN 8 --genomeDir /references/Human/GRCh38.109/ --outSAMtype BAM SortedByCoordinate --quantMode GeneCounts --outReadsUnmapped Fastx --sjdbGTFfile /references/Human/GRCh38.109/Homo_sapiens.GRCh38.109.gtf --readFilesIn ./sra_files/SRR15415031.trimmed.fastq --outFileNamePrefix SRR15415031_
+STAR --runMode alignReads --runThreadN 8 --genomeDir /references/Human/GRCh38.109/ --outSAMtype BAM SortedByCoordinate --quantMode GeneCounts --outReadsUnmapped Fastx --sjdbGTFfile /references/Human/GRCh38.109/Homo_sapiens.GRCh38.109.gtf --readFilesIn ./sra_files/SRR15415032.trimmed.fastq --outFileNamePrefix SRR15415032_
+STAR --runMode alignReads --runThreadN 8 --genomeDir /references/Human/GRCh38.109/ --outSAMtype BAM SortedByCoordinate --quantMode GeneCounts --outReadsUnmapped Fastx --sjdbGTFfile /references/Human/GRCh38.109/Homo_sapiens.GRCh38.109.gtf --readFilesIn ./sra_files/SRR15415033.trimmed.fastq --outFileNamePrefix SRR15415033_
+
+
+
+### All_Samples ###
+# Generate a gene matrix
+# Unstranded
+paste SRR15415022_ReadsPerGene.out.tab  SRR15415023_ReadsPerGene.out.tab   SRR15415024_ReadsPerGene.out.tab   SRR15415025_ReadsPerGene.out.tab   SRR15415026_ReadsPerGene.out.tab   SRR15415027_ReadsPerGene.out.tab   SRR15415028_ReadsPerGene.out.tab   SRR15415029_ReadsPerGene.out.tab   SRR15415030_ReadsPerGene.out.tab   SRR15415031_ReadsPerGene.out.tab   SRR15415032_ReadsPerGene.out.tab   SRR15415033_ReadsPerGene.out.tab | cut -f1,2,6,10,14,18,22,26,30,34,38,42,46 | tail -n +5 > tmpfile
+
+cat tmpfile | sed "s/^gene://" >gene_count_Unstranded-All_Samples.txt
+
+
+# Run edgeR on R to derive differentially expressed genes
+library (edgeR)
+library(GenomicFeatures)
+
+x <- read.delim("gene_count_Unstranded-All_Samples.txt", header=F, row.names=1)
+colnames(x)<-c("Resting.1","Resting.2","Resting.3","CXCL4.1","CXCL4.2","CXCL4.3","ORN8L.1","ORN8L.2","ORN8L.3","CXCL4+ORN8L.1","CXCL4+ORN8L.2","CXCL4+ORN8L.3")
+group <- factor(c(1,1,1,2,2,2,3,3,3,4,4,4))
+y <- DGEList(counts=x,group=group)
+y <- calcNormFactors(y)
+
+# Calculate CPM (counts per million) values
+d <-cpm(y)
+
+# Write out the CPM values for each gene into a table
+write.table(d, "GSE181889-Monocytes-Unstranded-All_Samples-CPM.txt", sep="\t")
+
+# Calculating RPKM
+# https://research.stowers.org/cws/CompGenomics/Projects/edgeR.html
+
+# give the gene lengths
+gtf_file <- "/references/Human/GRCh38.109/Homo_sapiens.GRCh38.109.gtf"
+txdb <- makeTxDbFromGFF(file=gtf_file)
+tx_by_gene <- transcriptsBy(txdb, 'gene')
+geneLengths <- sum(width(reduce(tx_by_gene)))
+
+# using our DGE list object from above
+iv <- match(rownames(x), names(geneLengths))
+
+fpkm <- rpkm(x, geneLengths[iv])
+
+# Write out the RPKM values for each gene into a table
+write.table(fpkm, "GSE181889-Monocytes-Unstranded-All_Samples-RPKM.txt", sep="\t")
+
+
+# Calculate TPM from RPKM
+# http://luisvalesilva.com/datasimple/rna-seq_units.html
+tpm_from_rpkm <- function(x){
+	rpkm.sum <-colSums(x)
+	return(t(t(x) / (1e-06 * rpkm.sum)))
+}
+
+tpm <- tpm_from_rpkm(fpkm)
+
+# Write out the TPM values for each gene into a table
+write.table(tpm, "GSE181889-Monocytes-Unstranded-All_Samples-TPM.txt", sep="\t")
+
+q()
+n
+
+
+
+### CXCL4_vs_Resting ###
+# Generate a gene matrix
+# Unstranded
+paste SRR15415022_ReadsPerGene.out.tab SRR15415023_ReadsPerGene.out.tab SRR15415024_ReadsPerGene.out.tab SRR15415025_ReadsPerGene.out.tab SRR15415026_ReadsPerGene.out.tab SRR15415027_ReadsPerGene.out.tab  | cut -f1,2,6,10,14,18,22 | tail -n +5 > tmpfile
+
+cat tmpfile | sed "s/^gene://" >gene_count_Unstranded-CXCL4_vs_Resting.txt
+
+
+# Run edgeR on R to derive differentially expressed genes
+library (edgeR)
+library(GenomicFeatures)
+
+x <- read.delim("gene_count_Unstranded-CXCL4_vs_Resting.txt", header=F, row.names=1)
+colnames(x)<-c("Resting.1","Resting.2","Resting.3","CXCL4.1","CXCL4.2","CXCL4.3")
+group <- factor(c(1,1,1,2,2,2))
+y <- DGEList(counts=x,group=group)
+y <- calcNormFactors(y)
+
+# Calculate CPM (counts per million) values
+d <-cpm(y)
+
+# Write out the CPM values for each gene into a table
+write.table(d, "GSE181889-Monocytes-Unstranded-CXCL4_vs_Resting-CPM.txt", sep="\t")
+
+# Calculating RPKM
+# https://research.stowers.org/cws/CompGenomics/Projects/edgeR.html
+
+# give the gene lengths
+gtf_file <- "/references/Human/GRCh38.109/Homo_sapiens.GRCh38.109.gtf"
+txdb <- makeTxDbFromGFF(file=gtf_file)
+tx_by_gene <- transcriptsBy(txdb, 'gene')
+geneLengths <- sum(width(reduce(tx_by_gene)))
+
+# using our DGE list object from above
+iv <- match(rownames(x), names(geneLengths))
+
+fpkm <- rpkm(x, geneLengths[iv])
+
+# Write out the RPKM values for each gene into a table
+write.table(fpkm, "GSE181889-Monocytes-Unstranded-CXCL4_vs_Resting-RPKM.txt", sep="\t")
+
+
+# Calculate TPM from RPKM
+# http://luisvalesilva.com/datasimple/rna-seq_units.html
+tpm_from_rpkm <- function(x){
+	rpkm.sum <-colSums(x)
+	return(t(t(x) / (1e-06 * rpkm.sum)))
+}
+
+tpm <- tpm_from_rpkm(fpkm)
+
+# Write out the TPM values for each gene into a table
+write.table(tpm, "GSE181889-Monocytes-Unstranded-CXCL4_vs_Resting-TPM.txt", sep="\t")
+
+
+# Calculate differentially expressed genes
+design<-model.matrix(~0+group)
+y <- estimateGLMCommonDisp(y,design)
+y <- estimateGLMTrendedDisp(y,design)
+y <- estimateGLMTagwiseDisp(y,design)
+fit<-glmFit(y,design)
+lrt.2vs1 <- glmLRT(fit, contrast=c(-1,1))
+
+# To get out FDR
+out <- topTags(lrt.2vs1, n = "Inf")$table
+
+# Write out the results
+write.table(out, "GSE181889-Monocytes-Unstranded-CXCL4_vs_Resting-Ratio.txt", sep="\t")
+
+q()
+n
+
+
+
+### ORN8L_vs_Resting ###
+# Generate a gene matrix
+# Unstranded
+paste SRR15415022_ReadsPerGene.out.tab SRR15415023_ReadsPerGene.out.tab SRR15415024_ReadsPerGene.out.tab SRR15415028_ReadsPerGene.out.tab SRR15415029_ReadsPerGene.out.tab SRR15415030_ReadsPerGene.out.tab  | cut -f1,2,6,10,14,18,22 | tail -n +5 > tmpfile
+
+cat tmpfile | sed "s/^gene://" >gene_count_Unstranded-ORN8L_vs_Resting.txt
+
+
+# Run edgeR on R to derive differentially expressed genes
+library (edgeR)
+library(GenomicFeatures)
+
+x <- read.delim("gene_count_Unstranded-ORN8L_vs_Resting.txt", header=F, row.names=1)
+colnames(x)<-c("Resting.1","Resting.2","Resting.3","ORN8L.1","ORN8L.2","ORN8L.3")
+group <- factor(c(1,1,1,2,2,2))
+y <- DGEList(counts=x,group=group)
+y <- calcNormFactors(y)
+
+# Calculate CPM (counts per million) values
+d <-cpm(y)
+
+# Write out the CPM values for each gene into a table
+write.table(d, "GSE181889-Monocytes-Unstranded-ORN8L_vs_Resting-CPM.txt", sep="\t")
+
+# Calculating RPKM
+# https://research.stowers.org/cws/CompGenomics/Projects/edgeR.html
+
+# give the gene lengths
+gtf_file <- "/references/Human/GRCh38.109/Homo_sapiens.GRCh38.109.gtf"
+txdb <- makeTxDbFromGFF(file=gtf_file)
+tx_by_gene <- transcriptsBy(txdb, 'gene')
+geneLengths <- sum(width(reduce(tx_by_gene)))
+
+# using our DGE list object from above
+iv <- match(rownames(x), names(geneLengths))
+
+fpkm <- rpkm(x, geneLengths[iv])
+
+# Write out the RPKM values for each gene into a table
+write.table(fpkm, "GSE181889-Monocytes-Unstranded-ORN8L_vs_Resting-RPKM.txt", sep="\t")
+
+
+# Calculate TPM from RPKM
+# http://luisvalesilva.com/datasimple/rna-seq_units.html
+tpm_from_rpkm <- function(x){
+	rpkm.sum <-colSums(x)
+	return(t(t(x) / (1e-06 * rpkm.sum)))
+}
+
+tpm <- tpm_from_rpkm(fpkm)
+
+# Write out the TPM values for each gene into a table
+write.table(tpm, "GSE181889-Monocytes-Unstranded-ORN8L_vs_Resting-TPM.txt", sep="\t")
+
+
+# Calculate differentially expressed genes
+design<-model.matrix(~0+group)
+y <- estimateGLMCommonDisp(y,design)
+y <- estimateGLMTrendedDisp(y,design)
+y <- estimateGLMTagwiseDisp(y,design)
+fit<-glmFit(y,design)
+lrt.2vs1 <- glmLRT(fit, contrast=c(-1,1))
+
+# To get out FDR
+out <- topTags(lrt.2vs1, n = "Inf")$table
+
+# Write out the results
+write.table(out, "GSE181889-Monocytes-Unstranded-ORN8L_vs_Resting-Ratio.txt", sep="\t")
+
+q()
+n
+
+
+### CXCL4+ORN8L_vs_Resting ###
+# Generate a gene matrix
+# Unstranded
+paste SRR15415022_ReadsPerGene.out.tab SRR15415023_ReadsPerGene.out.tab SRR15415024_ReadsPerGene.out.tab SRR15415031_ReadsPerGene.out.tab SRR15415032_ReadsPerGene.out.tab SRR15415033_ReadsPerGene.out.tab  | cut -f1,2,6,10,14,18,22 | tail -n +5 > tmpfile
+
+cat tmpfile | sed "s/^gene://" >gene_count_Unstranded-CXCL4+ORN8L_vs_Resting.txt
+
+
+# Run edgeR on R to derive differentially expressed genes
+library (edgeR)
+library(GenomicFeatures)
+
+x <- read.delim("gene_count_Unstranded-CXCL4+ORN8L_vs_Resting.txt", header=F, row.names=1)
+colnames(x)<-c("Resting.1","Resting.2","Resting.3","CXCL4+ORN8L.1","CXCL4+ORN8L.2","CXCL4+ORN8L.3")
+group <- factor(c(1,1,1,2,2,2))
+y <- DGEList(counts=x,group=group)
+y <- calcNormFactors(y)
+
+# Calculate CPM (counts per million) values
+d <-cpm(y)
+
+# Write out the CPM values for each gene into a table
+write.table(d, "GSE181889-Monocytes-Unstranded-CXCL4+ORN8L_vs_Resting-CPM.txt", sep="\t")
+
+# Calculating RPKM
+# https://research.stowers.org/cws/CompGenomics/Projects/edgeR.html
+
+# give the gene lengths
+gtf_file <- "/references/Human/GRCh38.109/Homo_sapiens.GRCh38.109.gtf"
+txdb <- makeTxDbFromGFF(file=gtf_file)
+tx_by_gene <- transcriptsBy(txdb, 'gene')
+geneLengths <- sum(width(reduce(tx_by_gene)))
+
+# using our DGE list object from above
+iv <- match(rownames(x), names(geneLengths))
+
+fpkm <- rpkm(x, geneLengths[iv])
+
+# Write out the RPKM values for each gene into a table
+write.table(fpkm, "GSE181889-Monocytes-Unstranded-CXCL4+ORN8L_vs_Resting-RPKM.txt", sep="\t")
+
+
+# Calculate TPM from RPKM
+# http://luisvalesilva.com/datasimple/rna-seq_units.html
+tpm_from_rpkm <- function(x){
+	rpkm.sum <-colSums(x)
+	return(t(t(x) / (1e-06 * rpkm.sum)))
+}
+
+tpm <- tpm_from_rpkm(fpkm)
+
+# Write out the TPM values for each gene into a table
+write.table(tpm, "GSE181889-Monocytes-Unstranded-CXCL4+ORN8L_vs_Resting-TPM.txt", sep="\t")
+
+
+# Calculate differentially expressed genes
+design<-model.matrix(~0+group)
+y <- estimateGLMCommonDisp(y,design)
+y <- estimateGLMTrendedDisp(y,design)
+y <- estimateGLMTagwiseDisp(y,design)
+fit<-glmFit(y,design)
+lrt.2vs1 <- glmLRT(fit, contrast=c(-1,1))
+
+# To get out FDR
+out <- topTags(lrt.2vs1, n = "Inf")$table
+
+# Write out the results
+write.table(out, "GSE181889-Monocytes-Unstranded-CXCL4+ORN8L_vs_Resting-Ratio.txt", sep="\t")
+
+q()
+n
+
+
+### ORN8L_vs_CXCL4 ###
+# Generate a gene matrix
+# Unstranded
+paste SRR15415025_ReadsPerGene.out.tab SRR15415026_ReadsPerGene.out.tab SRR15415027_ReadsPerGene.out.tab SRR15415028_ReadsPerGene.out.tab SRR15415029_ReadsPerGene.out.tab SRR15415030_ReadsPerGene.out.tab   | cut -f1,2,6,10,14,18,22 | tail -n +5 > tmpfile
+
+cat tmpfile | sed "s/^gene://" >gene_count_Unstranded-ORN8L_vs_CXCL4.txt
+
+
+# Run edgeR on R to derive differentially expressed genes
+library (edgeR)
+library(GenomicFeatures)
+
+x <- read.delim("gene_count_Unstranded-ORN8L_vs_CXCL4.txt", header=F, row.names=1)
+colnames(x)<-c("CXCL4.1","CXCL4.2","CXCL4.3","ORN8L.1","ORN8L.2","ORN8L.3")
+group <- factor(c(1,1,1,2,2,2))
+y <- DGEList(counts=x,group=group)
+y <- calcNormFactors(y)
+
+# Calculate CPM (counts per million) values
+d <-cpm(y)
+
+# Write out the CPM values for each gene into a table
+write.table(d, "GSE181889-Monocytes-Unstranded-ORN8L_vs_CXCL4-CPM.txt", sep="\t")
+
+# Calculating RPKM
+# https://research.stowers.org/cws/CompGenomics/Projects/edgeR.html
+
+# give the gene lengths
+gtf_file <- "/references/Human/GRCh38.109/Homo_sapiens.GRCh38.109.gtf"
+txdb <- makeTxDbFromGFF(file=gtf_file)
+tx_by_gene <- transcriptsBy(txdb, 'gene')
+geneLengths <- sum(width(reduce(tx_by_gene)))
+
+# using our DGE list object from above
+iv <- match(rownames(x), names(geneLengths))
+
+fpkm <- rpkm(x, geneLengths[iv])
+
+# Write out the RPKM values for each gene into a table
+write.table(fpkm, "GSE181889-Monocytes-Unstranded-ORN8L_vs_CXCL4-RPKM.txt", sep="\t")
+
+
+# Calculate TPM from RPKM
+# http://luisvalesilva.com/datasimple/rna-seq_units.html
+tpm_from_rpkm <- function(x){
+	rpkm.sum <-colSums(x)
+	return(t(t(x) / (1e-06 * rpkm.sum)))
+}
+
+tpm <- tpm_from_rpkm(fpkm)
+
+# Write out the TPM values for each gene into a table
+write.table(tpm, "GSE181889-Monocytes-Unstranded-ORN8L_vs_CXCL4-TPM.txt", sep="\t")
+
+
+# Calculate differentially expressed genes
+design<-model.matrix(~0+group)
+y <- estimateGLMCommonDisp(y,design)
+y <- estimateGLMTrendedDisp(y,design)
+y <- estimateGLMTagwiseDisp(y,design)
+fit<-glmFit(y,design)
+lrt.2vs1 <- glmLRT(fit, contrast=c(-1,1))
+
+# To get out FDR
+out <- topTags(lrt.2vs1, n = "Inf")$table
+
+# Write out the results
+write.table(out, "GSE181889-Monocytes-Unstranded-ORN8L_vs_CXCL4-Ratio.txt", sep="\t")
+
+q()
+n
+
+
+### CXCL4+ORN8L_vs_CXCL4 ###
+# Generate a gene matrix
+# Unstranded
+paste SRR15415025_ReadsPerGene.out.tab SRR15415026_ReadsPerGene.out.tab SRR15415027_ReadsPerGene.out.tab SRR15415031_ReadsPerGene.out.tab SRR15415032_ReadsPerGene.out.tab SRR15415033_ReadsPerGene.out.tab   | cut -f1,2,6,10,14,18,22 | tail -n +5 > tmpfile
+
+cat tmpfile | sed "s/^gene://" >gene_count_Unstranded-CXCL4+ORN8L_vs_CXCL4.txt
+
+
+# Run edgeR on R to derive differentially expressed genes
+library (edgeR)
+library(GenomicFeatures)
+
+x <- read.delim("gene_count_Unstranded-CXCL4+ORN8L_vs_CXCL4.txt", header=F, row.names=1)
+colnames(x)<-c("CXCL4.1","CXCL4.2","CXCL4.3","CXCL4+ORN8L.1","CXCL4+ORN8L.2","CXCL4+ORN8L.3")
+group <- factor(c(1,1,1,2,2,2))
+y <- DGEList(counts=x,group=group)
+y <- calcNormFactors(y)
+
+# Calculate CPM (counts per million) values
+d <-cpm(y)
+
+# Write out the CPM values for each gene into a table
+write.table(d, "GSE181889-Monocytes-Unstranded-CXCL4+ORN8L_vs_CXCL4-CPM.txt", sep="\t")
+
+# Calculating RPKM
+# https://research.stowers.org/cws/CompGenomics/Projects/edgeR.html
+
+# give the gene lengths
+gtf_file <- "/references/Human/GRCh38.109/Homo_sapiens.GRCh38.109.gtf"
+txdb <- makeTxDbFromGFF(file=gtf_file)
+tx_by_gene <- transcriptsBy(txdb, 'gene')
+geneLengths <- sum(width(reduce(tx_by_gene)))
+
+# using our DGE list object from above
+iv <- match(rownames(x), names(geneLengths))
+
+fpkm <- rpkm(x, geneLengths[iv])
+
+# Write out the RPKM values for each gene into a table
+write.table(fpkm, "GSE181889-Monocytes-Unstranded-CXCL4+ORN8L_vs_CXCL4-RPKM.txt", sep="\t")
+
+
+# Calculate TPM from RPKM
+# http://luisvalesilva.com/datasimple/rna-seq_units.html
+tpm_from_rpkm <- function(x){
+	rpkm.sum <-colSums(x)
+	return(t(t(x) / (1e-06 * rpkm.sum)))
+}
+
+tpm <- tpm_from_rpkm(fpkm)
+
+# Write out the TPM values for each gene into a table
+write.table(tpm, "GSE181889-Monocytes-Unstranded-CXCL4+ORN8L_vs_CXCL4-TPM.txt", sep="\t")
+
+
+# Calculate differentially expressed genes
+design<-model.matrix(~0+group)
+y <- estimateGLMCommonDisp(y,design)
+y <- estimateGLMTrendedDisp(y,design)
+y <- estimateGLMTagwiseDisp(y,design)
+fit<-glmFit(y,design)
+lrt.2vs1 <- glmLRT(fit, contrast=c(-1,1))
+
+# To get out FDR
+out <- topTags(lrt.2vs1, n = "Inf")$table
+
+# Write out the results
+write.table(out, "GSE181889-Monocytes-Unstranded-CXCL4+ORN8L_vs_CXCL4-Ratio.txt", sep="\t")
+
+q()
+n
+
+
+### CXCL4+ORN8L_vs_ORN8L ###
+# Generate a gene matrix
+# Unstranded
+paste SRR15415028_ReadsPerGene.out.tab SRR15415029_ReadsPerGene.out.tab SRR15415030_ReadsPerGene.out.tab SRR15415031_ReadsPerGene.out.tab SRR15415032_ReadsPerGene.out.tab SRR15415033_ReadsPerGene.out.tab   | cut -f1,2,6,10,14,18,22 | tail -n +5 > tmpfile
+
+cat tmpfile | sed "s/^gene://" >gene_count_Unstranded-CXCL4+ORN8L_vs_ORN8L.txt
+
+
+# Run edgeR on R to derive differentially expressed genes
+library (edgeR)
+library(GenomicFeatures)
+
+x <- read.delim("gene_count_Unstranded-CXCL4+ORN8L_vs_ORN8L.txt", header=F, row.names=1)
+colnames(x)<-c("ORN8L.1","ORN8L.2","ORN8L.3","CXCL4+ORN8L.1","CXCL4+ORN8L.2","CXCL4+ORN8L.3")
+group <- factor(c(1,1,1,2,2,2))
+y <- DGEList(counts=x,group=group)
+y <- calcNormFactors(y)
+
+# Calculate CPM (counts per million) values
+d <-cpm(y)
+
+# Write out the CPM values for each gene into a table
+write.table(d, "GSE181889-Monocytes-Unstranded-CXCL4+ORN8L_vs_ORN8L-CPM.txt", sep="\t")
+
+# Calculating RPKM
+# https://research.stowers.org/cws/CompGenomics/Projects/edgeR.html
+
+# give the gene lengths
+gtf_file <- "/references/Human/GRCh38.109/Homo_sapiens.GRCh38.109.gtf"
+txdb <- makeTxDbFromGFF(file=gtf_file)
+tx_by_gene <- transcriptsBy(txdb, 'gene')
+geneLengths <- sum(width(reduce(tx_by_gene)))
+
+# using our DGE list object from above
+iv <- match(rownames(x), names(geneLengths))
+
+fpkm <- rpkm(x, geneLengths[iv])
+
+# Write out the RPKM values for each gene into a table
+write.table(fpkm, "GSE181889-Monocytes-Unstranded-CXCL4+ORN8L_vs_ORN8L-RPKM.txt", sep="\t")
+
+
+# Calculate TPM from RPKM
+# http://luisvalesilva.com/datasimple/rna-seq_units.html
+tpm_from_rpkm <- function(x){
+	rpkm.sum <-colSums(x)
+	return(t(t(x) / (1e-06 * rpkm.sum)))
+}
+
+tpm <- tpm_from_rpkm(fpkm)
+
+# Write out the TPM values for each gene into a table
+write.table(tpm, "GSE181889-Monocytes-Unstranded-CXCL4+ORN8L_vs_ORN8L-TPM.txt", sep="\t")
+
+
+# Calculate differentially expressed genes
+design<-model.matrix(~0+group)
+y <- estimateGLMCommonDisp(y,design)
+y <- estimateGLMTrendedDisp(y,design)
+y <- estimateGLMTagwiseDisp(y,design)
+fit<-glmFit(y,design)
+lrt.2vs1 <- glmLRT(fit, contrast=c(-1,1))
+
+# To get out FDR
+out <- topTags(lrt.2vs1, n = "Inf")$table
+
+# Write out the results
+write.table(out, "GSE181889-Monocytes-Unstranded-CXCL4+ORN8L_vs_ORN8L-Ratio.txt", sep="\t")
+
+q()
+n
+
+
